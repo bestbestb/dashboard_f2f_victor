@@ -1,0 +1,106 @@
+﻿<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>F2F Dashboard</title>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet"/>
+    <Link href="/style.css" rel="stylesheet"/>
+  </head>
+  <body ng-app="meetf2f" ng-controller="meetf2f">
+
+    <h1>MEET F2F</h1>
+    <h2><a class="blue" ng-click="exportUsers()">Export to CSV</a></h2>
+    <div class="container">
+
+
+      <table class="users">
+        <thead>
+          <tr>
+            <th ng:repeat="(i,th) in head" ng:class="selectedCls(i)" ng:click="changeSorting(i)">{{th}}</th>
+          </tr>
+        </thead>
+
+
+        <tr ng:repeat="user in users | orderBy:sort.column: sort.descending">
+          <td>
+            <select ng-model="user.account_status" ng-change="updateUser(user)">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="banned">banned</option>
+              <option value="delete">delete?</option>
+            </select>
+          </td>
+          <td><a class="blue" ng-click="showUser(user)">{{user.name}}</a></td>
+
+          <td>
+
+            <a href={{user.url}} target="_blank"><i class="fa fa-facebook"></i></a>
+          </td>
+
+          <td>{{user.date_time_created_string}}</td>
+          <td>{{user.date_time_string}}</td>
+          <td>{{user.looking_for}}</td>
+          <td><a class="blue" ng-click="showMap(user.location.x, user.location.y)">Show</a></td>
+
+        </tr>
+
+
+
+
+
+      </table>
+
+
+      <div class="popup map" ng-class="{ visible: mapPopup == true}" ng-click="mapPopup = false;">
+        <div class="background"></div>
+        <div class="popup-wrap">
+          <img ng-src="https://maps.googleapis.com/maps/api/staticmap?center={{mapLat}},{{mapLng}}&markers=color:blue%7Clabel:F2F%7C{{mapLat}},{{mapLng}}&zoom=12&size=400x400&key=AIzaSyAot8dVv6vucl6sXcf4z-iVQs-OiGW7Cx4"/>
+        </div>
+      </div>
+      <div class="popup user" ng-class="{ visible: userPopup == true}">
+        <div class="background" ng-click="userPopup = false;"></div>
+        <div class="popup-wrap">
+          <div class="columns">
+            <div class="column">
+              <table>
+                <tr>
+                  <td>Asking For</td>
+                  <td>Date</td>
+                  <td>Current Location</td>
+                  <td>Conversations</td>
+                </tr>
+                <tr ng-repeat="location in locationHistory">
+                  <td>{{location.looking_for}}</td>
+                  <td>{{location.date_time}}</td>
+                  <td><a class="blue" ng-click="showMap(location.location.x, location.location.y)">Show</a></td>
+                  <td><a class="blue" ng-click="filterConvo(location.looking_for)">Show</a></td>
+                </tr>
+              </table>
+            </div>
+            <div class="column">
+              <img ng-src="{{profile_picture}}"/>
+              <h2>{{current_name}}'s Conversations</h2>
+              <table>
+                <tr ng-repeat="chat in chats track by $index" ng-click="openConvo(chat.chat_room_id)">
+                  <td ng-if="chat.user_id1 != current_user_id">{{chat.name1}}</td>
+                  <td ng-if="chat.user_id2 != current_user_id">{{chat.name2}}</td>
+                </tr>
+              </table>
+              <h2>Conversation History</h2>
+              <table>
+                <tr ng-repeat="chatMessage in chatMessages">
+                  <td>{{chatMessage.name}} said {{chatMessage.message}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://opensource.keycdn.com/angularjs/1.5.8/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.5.1/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
